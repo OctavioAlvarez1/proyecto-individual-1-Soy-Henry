@@ -4,7 +4,7 @@ import pandas as pd
 app = FastAPI()
 
 # Cargar los datos procesados desde el archivo .parquet
-df_steam_games = pd.read_parquet('fast-api/processed_steam_games.parquet')
+df_steam_games = pd.read_parquet('Dataset/api-dataset/processed_steam_games.parquet')
 
 @app.get("/developer/")
 def developer(desarrollador: str):
