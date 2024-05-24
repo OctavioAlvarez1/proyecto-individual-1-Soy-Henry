@@ -8,9 +8,9 @@ import logging
 app = FastAPI()
 
 # Cargo los datos procesados en formato .parquet
-df_steam_games = pd.read_parquet('./Dataset/api-dataset/processed_steam_games.parquet')
-df_users_reviews = pd.read_parquet('./Dataset/api-dataset/processed_user_reviews.parquet')
-df_users_items = pd.read_parquet('./Dataset/api-dataset/processed_user_items.parquet')
+df_steam_games = pd.read_parquet('Dataset/api-dataset/processed_steam_games.parquet')
+df_users_reviews = pd.read_parquet('Dataset/api-dataset/processed_user_reviews.parquet')
+df_users_items = pd.read_parquet('Dataset/api-dataset/processed_user_items.parquet')
 
 
 #Primer endpoint
