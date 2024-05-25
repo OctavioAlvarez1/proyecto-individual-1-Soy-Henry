@@ -94,3 +94,7 @@ Para ver el desarrollo completo del modelo podés ingresar en este <a href="http
 Para el deploy de la API, se utilizó la plataforma Render. Los datos están listos para ser consumidos y consultados a partir del siguiente link
 
 <a href="https://proyecto-individual-1-soy-henry.onrender.com/docs">Link al deployment</a>
+
+<h1>Video</h1>
+
+Para consultar sobre los pasos del proceso y una explicación más profunda es posible acceder al siguiente enlace
