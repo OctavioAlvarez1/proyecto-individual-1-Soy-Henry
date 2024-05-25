@@ -57,3 +57,16 @@ Se solicitó efectuar la disponibilización de los siguientes endpoints a travé
    Ejemplo de retorno: {'Valve' : [Negative = 182, Positive = 278]}
 
 El código para correr la API dentro de FastAPI se puede visualizar <a href="https://github.com/OctavioAlvarez1/proyecto-individual-1-Soy-Henry/blob/main/main.py">acá</a>
+
+<h1>Análisis exploratorio de datos (EDA)</h1>
+
+Para poder lograr una mejor comprensión en el análisis de los datos se procedió a realizar un análisi exploratorio de los mismos.
+
+Entre las diversas acciones que se tomaron, se contaron los datos nulos y se procedió a borrar los mismos para tener un mejor análisis. Se procedió a ver el tipo de dato correspondiente
+a cada columna y se chequeó que no existiesen valores duplicados.
+
+Por otra parte, se analizaron los titulos de los juegos mediante una nube de palabras, se establecerieron dos matrices de correlaciones, y se llevaron adelante distintas combinaciones
+de datos que permitieron arrojar gráficos que contuvieran datos interesantes como: los números de juegos lanzados por año, la cantidad de juegos por género, el top 10 de desarrolladores de juegos,
+el top 10 de los juegos más jugados, y el top 10 de los juegos más vendidos
+
+Para visualizar el EDA completo podes ingresar a este <a href="https://github.com/OctavioAlvarez1/proyecto-individual-1-Soy-Henry/blob/main/eda_data.ipynb">link</a>
