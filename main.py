@@ -2,10 +2,11 @@ from fastapi import FastAPI, HTTPException
 import pandas as pd
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import linear_kernel
+from sklearn.metrics.pairwise import cosine_similarity
 import logging
 
 
-app = FastAPI()
+app = FastAPI(title="Primer proyecto individual - Soy Henry")
 
 # Cargo los datos procesados en formato .parquet
 df_steam_games = pd.read_parquet('./Dataset/api-dataset/processed_steam_games.parquet')
@@ -199,8 +200,11 @@ def recomendacion_juego(item_name: str):
         if not result.empty:
             genre = df_steam_games.loc[df_steam_games['app_name'] == item_name, 'genres'].iloc[0]
             
+            #Creo una matriz TF-IDF de las características
             tfidf = TfidfVectorizer(stop_words='english')
             tfidf_matrix = tfidf.fit_transform(result['item_name'])
+
+            #Calculo la similitud del coseno
             cosine_sim = linear_kernel(tfidf_matrix, tfidf_matrix)
             
             index = min(result.index[0], len(cosine_sim)-1)  # Índice asegurado dentro de los límites
@@ -218,3 +222,54 @@ def recomendacion_juego(item_name: str):
         logging.error(f"Error en la solicitud de recomendación de juego: {e}")
         return {"error": str(e)}, 500
 
+
+# Nueva función para recomendación de usuario
+@app.get("/recomendacion_usuario/")
+def recomendacion_usuario(user_id: str):
+    cantidad_maxima = 10000  # Limitar a los primeros 10,000 registros
+    
+    try:
+        logging.info(f"Solicitud recibida para recomendación de usuario: {user_id}")
+        
+        clean_df = df_users_reviews.dropna(subset=['user_id']) 
+        user_reviews = clean_df[clean_df['user_id'] == user_id].head(cantidad_maxima)
+        
+        if not user_reviews.empty:
+            # Filtrar usuarios similares
+            similar_users = find_similar_users(user_id)
+            
+            # Obtener juegos preferidos por usuarios similares
+            recommended_games = get_recommended_games(similar_users)
+            
+            return {"success": True, "message": f"Juegos recomendados para el usuario {user_id}", "juegos_recomendados": recommended_games}
+        else:
+            raise ValueError(f"Las reseñas del usuario {user_id} no fueron encontradas en df_users_reviews")
+        
+    except Exception as e:
+        logging.error(f"Error en la solicitud de recomendación de usuario: {e}")
+        return {"error": str(e)}, 500
+    
+# Función para encontrar usuarios similares
+def find_similar_users(user_id):
+    # Obtener reseñas del usuario
+    user_reviews = df_users_reviews[df_users_reviews['user_id'] == user_id]
+    
+    # Filtrar usuarios que también han revisado los mismos juegos
+    similar_users = df_users_reviews[df_users_reviews['item_id'].isin(user_reviews['item_id'])]
+    
+    return similar_users['user_id'].unique()
+
+# Función para obtener juegos recomendados para el usuario
+def get_recommended_games(similar_users):
+    # Obtener juegos preferidos por usuarios similares
+    recommended_games = df_users_reviews[df_users_reviews['user_id'].isin(similar_users)]
+    
+    # Contar las ocurrencias de cada juego y ordenar por la cantidad de veces que fue revisado
+    recommended_games = recommended_games.groupby('item_id').size().reset_index(name='count')
+    recommended_games = recommended_games.sort_values(by='count', ascending=False)
+    
+    # Obtener los nombres de los juegos recomendados
+    recommended_game_ids = recommended_games['item_id'].head(5)
+    recommended_games_names = df_steam_games[df_steam_games['id'].isin(recommended_game_ids)]['title'].tolist()
+    
+    return recommended_games_names
