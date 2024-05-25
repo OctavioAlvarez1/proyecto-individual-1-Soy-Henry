@@ -70,3 +70,21 @@ de datos que permitieron arrojar gráficos que contuvieran datos interesantes co
 el top 10 de los juegos más jugados, y el top 10 de los juegos más vendidos
 
 Para visualizar el EDA completo podes ingresar a este <a href="https://github.com/OctavioAlvarez1/proyecto-individual-1-Soy-Henry/blob/main/eda_data.ipynb">link</a>
+
+<h1>Modelo de recomendación - Machine Learning</h1>
+
+La consigna planteaba la idea de crear un sistema de recomendación basado en Machine Learning, siguiendo el modelo de similitud del coseno. 
+Para ello, se planteaban dos propuestas de trabajo: En la primera, el modelo deberá tener una relación ítem-ítem, esto es se toma un item, en base a que tan similar esa ese ítem al resto, se recomiendan similares. Acá el input
+es un juego y el output es una lista de juegos recomendados. 
+La otra propuesta para el sistema de recomendación debe aplicar el filtro user-item, esto es tomar un usuario, se encuentran usuarios similares y se recomiendan ítems que a esos usuarios similares les gustaron. 
+En este caso el input es un usuario y el output es una lista de juegos que se le recomienda a ese usuario, en general se explican como “A usuarios que son similares a tí también les gustó…”. 
+
+Para el sistema de recomendación item-item se definía la siguiente función:
+
+* def recomendacion_juego( id de producto ): Ingresando el id de producto, deberíamos recibir una lista con 5 juegos recomendados similares al ingresado.
+
+Para el sistema de recomendación user-item se definía la siguiente función:
+
+* def recomendacion_usuario( id de usuario ): Ingresando el id de un usuario, deberíamos recibir una lista con 5 juegos recomendados para dicho usuario.
+
+Para ver el desarrollo completo del modelo podés ingresar en este <a href="https://github.com/OctavioAlvarez1/proyecto-individual-1-Soy-Henry/blob/main/main.py">link</a>
