@@ -55,3 +55,5 @@ Se solicitó efectuar la disponibilización de los siguientes endpoints a travé
  * def developer_reviews_analysis( desarrolladora : str ): Según el desarrollador, se devuelve un diccionario con el nombre del desarrollador como llave y una lista con la cantidad total de registros
    de reseñas de usuarios que se encuentren categorizados con un análisis    de sentimiento como valor positivo o negativo.
    Ejemplo de retorno: {'Valve' : [Negative = 182, Positive = 278]}
+
+El código para correr la API dentro de FastAPI se puede visualizar <a href="https://github.com/OctavioAlvarez1/proyecto-individual-1-Soy-Henry/blob/main/main.py">acá</a>
