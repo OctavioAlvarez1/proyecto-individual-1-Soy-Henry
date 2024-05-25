@@ -10,11 +10,12 @@ La empresa (Steam) pide que se cree un sistema de recomendación de videojuegos 
 
 <h1>Dataset</h1>
 El proyecto cuenta con tres [datasets](https://github.com/OctavioAlvarez1/proyecto-individual-1-Soy-Henry/tree/main/Dataset/api-dataset):
-  * processed_steam_games.parquet: reúne información acerca de los desarrolladores y sus juegos.
+
+  * <strong>processed_steam_games.parquet</strong>: reúne información acerca de los desarrolladores y sus juegos.
   
-  * processed_user_items.parquet: reúne información sobre los usuarios, los juegos que juegan y la cantidad de horas que juegan.
+  * <strong>processed_user_items.parquet</strong>: reúne información sobre los usuarios, los juegos que juegan y la cantidad de horas que juegan.
     
-  * processed_user_reviews.parquet: reúne información sobre las reviews que hacen los usuarios sobre los juegos.
+  * <strong>processed_user_reviews.parquet</strong>: reúne información sobre las reviews que hacen los usuarios sobre los juegos.
 
 
   
