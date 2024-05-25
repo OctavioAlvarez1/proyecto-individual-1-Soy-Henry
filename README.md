@@ -17,8 +17,23 @@ El proyecto cuenta con tres <a href="https://github.com/OctavioAlvarez1/proyecto
     
   * <strong>processed_user_reviews.parquet</strong>: reúne información sobre las reviews que hacen los usuarios sobre los juegos.
 
+<h1>Data Engineering</h1>
 
+Para el trabajo de <strong>Data Engineering</strong> se procedió a efectuar una serie de transformaciones solicitadas sobre los datos, dentro de las cuales se encuentran, entre otras:
+
+  * Se quitaron las columnas "url" y "reviews_url" de df_steam_games por considerarlas innecesarias para el análisis.
   
+  * Se analizó la cantidad de datos nulos y se procedió a borrarlos para mejorar el análisis.
+    
+  * Se transformó la columna "release_date" a tipo date para un mejor análisis.
+
+  * Se transformó la columna "id" de df_steam_games a tipo int para un mejor análisis.
+
+  * Se desanidaron columnas en df_reviews para generar columnas nuevas que permitieran una mejora en el análisis.
+
+  * Se reemplazo la columna "reviews" en df_reviews por la columna "sentiment_analysis" para lograr un mejor análisis de los datos.
+
+  * Se generaron achivos con formato .parquet para que los datos sean más livianos para ser interpretados en la API.
 
 
 
