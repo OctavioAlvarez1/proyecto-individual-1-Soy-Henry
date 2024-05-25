@@ -15,67 +15,63 @@ df_users_items = pd.read_parquet('Dataset/api-dataset/processed_user_items.parqu
 
 
 #Primer endpoint
-#Anda perfecto
 @app.get("/developer/")
-def developer(desarrollador: str):
-    # Filtrar el DataFrame por desarrollador
-    df_filtered = df_steam_games[df_steam_games['developer'] == desarrollador]
+def developer(developer: str):
+    # Filtro el DataFrame por desarrollador
+    df_filtered = df_steam_games[df_steam_games['developer'] == developer]
     
-    # Convertir la columna 'release_date' a tipo datetime
-    df_filtered['release_date'] = pd.to_datetime(df_filtered['release_date'])
-    
-    # Extraer el año de lanzamiento
+    # Extraigo el año de lanzamiento
     df_filtered['release_year'] = df_filtered['release_date'].dt.year
     
-    # Contar la cantidad de items por año
-    items_por_anio = df_filtered.groupby('release_year').size().reset_index(name='Cantidad de Items')
+    # Cuento la cantidad de elementos por año
+    items_per_year = df_filtered.groupby('release_year').size().reset_index(name='Numero de items')
     
-    # Calcular el porcentaje de contenido Free por año
-    contenido_free_por_anio = (df_filtered['price'] == 'Free To Play').groupby(df_filtered['release_year']).mean() * 100
-    contenido_free_por_anio = contenido_free_por_anio.reset_index(name='Contenido Free')
+    # Calculo el porcentaje de contenido gratuito por año
+    free_content_per_year = (df_filtered['price'] == 'Free To Play').groupby(df_filtered['release_year']).mean() * 100
+    free_content_per_year = free_content_per_year.reset_index(name='Free Content')
     
-    # Combinar los resultados en un DataFrame final
-    resultado = pd.merge(items_por_anio, contenido_free_por_anio, on='release_year', how='left').fillna(0)
+    # Combino los resultados en un DataFrame final
+    result = pd.merge(items_per_year, free_content_per_year, on='release_year', how='left').fillna(0)
     
-    # Convertir el porcentaje de contenido Free a string con el formato adecuado
-    resultado['Contenido Free'] = resultado['Contenido Free'].astype(str) + '%'
+    # Convierto el porcentaje de contenido gratuito a cadena con el formato apropiado
+    result['Free Content'] = result['Free Content'].astype(str) + '%'
     
-    # Convertir el DataFrame a formato JSON y devolverlo como respuesta
-    return resultado.to_dict(orient='records')
+    # Convierto el DataFrame a formato JSON y lo devuelvo como respuesta
+    return result.to_dict(orient='records')
+
 
 
 #Segundo endpoint
-#Le falta solo la parte de cantidad de items
 @app.get("/userdata/")
 def userdata(User_id: str):
-    # Filtrar los items del usuario
+    # Filtro los items del usuario
     user_items = df_users_items[df_users_items['user_id'] == User_id]
     
     if user_items.empty:
-        raise HTTPException(status_code=404, detail="User not found")
+        raise HTTPException(status_code=404, detail="Usuario no encontrado")
 
-    # Obtener los IDs de los items que el usuario posee
+    # Obtengo los IDs de los items que el usuario posee
     user_item_ids = user_items['item_id'].unique()
     
-    # Filtrar los juegos correspondientes a esos item_ids
+    # Filtro los juegos correspondientes a esos item_ids
     user_games = df_steam_games[df_steam_games['id'].isin(user_item_ids)]
     
-    # Calcular la cantidad de dinero gastado
+    # Calculo la cantidad de dinero gastado
     money_spent = user_games['price'].sum()
     
-    # Filtrar las reviews del usuario
+    # Filtro las reviews del usuario
     user_reviews = df_users_reviews[df_users_reviews['user_id'] == User_id]
     
-    # Calcular el porcentaje de recomendación
+    # Calculo el porcentaje de recomendación
     if len(user_reviews) > 0:
         recommend_percentage = (user_reviews['sentiment_analysis'] == 2).mean() * 100
     else:
         recommend_percentage = 0.0
     
-    # Calcular la cantidad de items
+    # Calculo la cantidad de items
     items_count = user_items['item_id'].nunique()
     
-    # Crear el diccionario de resultado
+    # Creo el diccionario de resultado
     result = {
         "Usuario X": User_id,
         "Dinero gastado": f"{money_spent:.2f} USD",
@@ -85,17 +81,11 @@ def userdata(User_id: str):
     
     return result
 
-
-
-
-
-
 #Tercer endpoint
-
 @app.get("/UserForGenre/")
 def UserForGenre(genero: str):
     try:
-        # Filtrar los juegos por género
+        # Filtro los juegos por género
         genre_games = df_steam_games[df_steam_games['genres'].apply(lambda x: genero in x)]
 
         if genre_games.empty:
@@ -103,10 +93,10 @@ def UserForGenre(genero: str):
 
         genre_game_ids = genre_games['id'].unique()
 
-        # Filtrar los primeros 5000 registros de df_users_items
+        # Filtro los primeros 5000 registros de df_users_items
         subset_df_users_items = df_users_items.head(5000)
 
-        # Filtrar los items de los usuarios que han jugado estos juegos
+        # Filtro los items de los usuarios que han jugado estos juegos
         genre_user_items = subset_df_users_items[subset_df_users_items['item_id'].isin(genre_game_ids)]
 
         if genre_user_items.empty:
@@ -114,10 +104,10 @@ def UserForGenre(genero: str):
 
         genre_games['release_year'] = pd.DatetimeIndex(genre_games['release_date']).year
 
-        # Encontrar al usuario con más horas jugadas para este género
+        # Encuentro al usuario con más horas jugadas para este género
         top_user = genre_user_items.groupby('user_id')['playtime_forever'].sum().idxmax()
 
-        # Calcular la acumulación de horas jugadas por año para el usuario con más horas jugadas
+        # Calculo la acumulación de horas jugadas por año para el usuario con más horas jugadas
         user_hours_by_year = genre_user_items[genre_user_items['user_id'] == top_user].merge(genre_games[['id', 'release_year']], left_on='item_id', right_on='id')
         user_hours_by_year = user_hours_by_year.groupby('release_year').agg({'playtime_forever': 'sum'}).reset_index()
         user_hours_by_year = user_hours_by_year.rename(columns={'release_year': 'Año', 'playtime_forever': 'Horas'})
@@ -138,29 +128,29 @@ def UserForGenre(genero: str):
 @app.get("/best_developer_year/")
 def best_developer_year(año: int):
     try:
-        # Filtrar los juegos del año dado
+        # Filtro los juegos del año dado
         games_of_year = df_steam_games[df_steam_games['release_year'] == año]
 
-        # Filtrar las reseñas positivas del año dado
+        # Filtro las reseñas positivas del año dado
         positive_reviews = df_users_reviews[(df_users_reviews['sentiment_analysis'] == 2) & (df_users_reviews['recommend'])]
 
         # Merge entre juegos y reseñas por el id del juego
         merged_data = games_of_year.merge(positive_reviews, left_on='id', right_on='item_id', how='inner')
 
-        # Obtener el top 3 de desarrolladores más recomendados
+        # Obtengo el top 3 de desarrolladores más recomendados
         top_developers = merged_data.groupby('developer').size().nlargest(3).index.tolist()
 
-        # Crear el mensaje con el año
-        mensaje = f"Los 3 desarrolladores con juegos más recomendados para el año {año} son:"
+        # Creo el mensaje con el año
+        message = f"Los 3 desarrolladores con juegos más recomendados para el año {año} son:"
 
-        # Crear el resultado con la información de los 3 mejores desarrolladores
+        # Creo el resultado con la información de los 3 mejores desarrolladores
         result = [{
             'Puesto 1': top_developers[0],
             'Puesto 2': top_developers[1],
             'Puesto 3': top_developers[2]
         }]
 
-        return {'Mensaje': mensaje, 'Desarrolladores': result}
+        return {'Mensaje': message, 'Desarrolladores': result}
 
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error interno: {e}")
@@ -168,28 +158,29 @@ def best_developer_year(año: int):
 
 #Quinto endpoint
 @app.get("/developer_reviews_analysis/")
-def developer_reviews_analysis(desarrolladora: str):
-    # Buscar el id del desarrollador en df_steam_games
-    ids_desarrolladora = df_steam_games[df_steam_games['developer'] == desarrolladora]['id'].tolist()
+def developer_reviews_analysis(developer: str):
+    # Buscar el ID del desarrollador en df_steam_games
+    developer_ids = df_steam_games[df_steam_games['developer'] == developer]['id'].tolist()
     
-    # Filtrar las reseñas según los juegos del desarrollador en df_users_reviews
-    reseñas_desarrolladora = df_users_reviews[df_users_reviews['item_id'].isin(ids_desarrolladora)]
+    # Filtrar las reseñas basadas en los juegos del desarrollador en df_users_reviews
+    developer_reviews = df_users_reviews[df_users_reviews['item_id'].isin(developer_ids)]
     
-    # Contar la cantidad de reseñas positivas, negativas y neutrales
-    positivas = reseñas_desarrolladora[reseñas_desarrolladora['sentiment_analysis'] == 2].shape[0]
-    negativas = reseñas_desarrolladora[reseñas_desarrolladora['sentiment_analysis'] == 0].shape[0]
+    # Contar el número de reseñas positivas, negativas y neutrales
+    positive_reviews = developer_reviews[developer_reviews['sentiment_analysis'] == 2].shape[0]
+    negative_reviews = developer_reviews[developer_reviews['sentiment_analysis'] == 0].shape[0]
     
-    # Crear diccionario con los resultados
-    result = {desarrolladora: {'Negativas': negativas, 'Positivas': positivas}}
+    # Crear un diccionario con los resultados
+    result = {developer: {'Negativas': negative_reviews, 'Positivas': positive_reviews}}
     
     return result
 
 
+#MODELO MACHINE LEARNING  
 
-#MODELO MACHINE LEARNING  (Portal, Terraria, )
+#Funcion para recomendación de juego
 @app.get("/recomendacion_juego/")
 def recomendacion_juego(item_name: str):
-    cantidad_maxima = 10000  # Limitar a los primeros 10,000 registros
+    cantidad_maxima = 10000  # Limito a los primeros 10,000 registros
     
     try:
         logging.info(f"Solicitud recibida para recomendación de juego: {item_name}")
@@ -200,45 +191,50 @@ def recomendacion_juego(item_name: str):
         if not result.empty:
             genre = df_steam_games.loc[df_steam_games['app_name'] == item_name, 'genres'].iloc[0]
             
-            #Creo una matriz TF-IDF de las características
+            # Creo una matrix TF-IDF
             tfidf = TfidfVectorizer(stop_words='english')
             tfidf_matrix = tfidf.fit_transform(result['item_name'])
 
-            #Calculo la similitud del coseno
+            # Calculo la similitud del coseno
             cosine_sim = linear_kernel(tfidf_matrix, tfidf_matrix)
             
-            index = min(result.index[0], len(cosine_sim)-1)  # Índice asegurado dentro de los límites
+            # Índice asegurado dentro de los límites
+            index = min(result.index[0], len(cosine_sim)-1)  
             
-            similar_games_indices = cosine_sim[index].argsort()[-6:-1][::-1]  # Índices de los juegos más similares
-            top_juegos_recomendados = df_users_items.iloc[similar_games_indices]  # Juegos recomendados
+            # Índices de los juegos más similares
+            similar_games_indices = cosine_sim[index].argsort()[-6:-1][::-1] 
+
+            # Juegos recomendados
+            top_recommended_games = df_users_items.iloc[similar_games_indices]  
             
-            recommended_games_list = top_juegos_recomendados['item_name'].tolist()  # Lista de nombres de juegos recomendados
+             # Lista de juegos recomendados
+            recommended_games_list = top_recommended_games['item_name'].tolist() 
             
-            return {"success": True, "message": f"Juegos similares recomendados para {item_name}", "juegos_recomendados": recommended_games_list}
+            return {"success": True, "message": f"Juegos similares recomendados para {item_name}", "juegos recomendados": recommended_games_list}
         else:
-            raise ValueError(f"{item_name} no encontrado en df_users_items")
+            raise ValueError(f"{item_name} no se encuentra en df_users_items")
         
     except Exception as e:
-        logging.error(f"Error en la solicitud de recomendación de juego: {e}")
+        logging.error(f"Error en la recomendación: {e}")
         return {"error": str(e)}, 500
 
 
-# Nueva función para recomendación de usuario
+# Función para recomendación de usuario
 @app.get("/recomendacion_usuario/")
 def recomendacion_usuario(user_id: str):
-    cantidad_maxima = 10000  # Limitar a los primeros 10,000 registros
+    maximum_quantity = 10000  # Limito a los primeros 10,000 registros
     
     try:
         logging.info(f"Solicitud recibida para recomendación de usuario: {user_id}")
         
         clean_df = df_users_reviews.dropna(subset=['user_id']) 
-        user_reviews = clean_df[clean_df['user_id'] == user_id].head(cantidad_maxima)
+        user_reviews = clean_df[clean_df['user_id'] == user_id].head(maximum_quantity)
         
         if not user_reviews.empty:
-            # Filtrar usuarios similares
+            # Filtro usuarios similares
             similar_users = find_similar_users(user_id)
             
-            # Obtener juegos preferidos por usuarios similares
+            # Obtengo juegos preferidos por usuarios similares
             recommended_games = get_recommended_games(similar_users)
             
             return {"success": True, "message": f"Juegos recomendados para el usuario {user_id}", "juegos_recomendados": recommended_games}
@@ -251,24 +247,24 @@ def recomendacion_usuario(user_id: str):
     
 # Función para encontrar usuarios similares
 def find_similar_users(user_id):
-    # Obtener reseñas del usuario
+    # Obtengo reseñas del usuario
     user_reviews = df_users_reviews[df_users_reviews['user_id'] == user_id]
     
-    # Filtrar usuarios que también han revisado los mismos juegos
+    # Filtro usuarios que también han revisado los mismos juegos
     similar_users = df_users_reviews[df_users_reviews['item_id'].isin(user_reviews['item_id'])]
     
     return similar_users['user_id'].unique()
 
 # Función para obtener juegos recomendados para el usuario
 def get_recommended_games(similar_users):
-    # Obtener juegos preferidos por usuarios similares
+    # Obtengo juegos preferidos por usuarios similares
     recommended_games = df_users_reviews[df_users_reviews['user_id'].isin(similar_users)]
     
-    # Contar las ocurrencias de cada juego y ordenar por la cantidad de veces que fue revisado
+    # Cuento las ocurrencias de cada juego y ordenar por la cantidad de veces que fue revisado
     recommended_games = recommended_games.groupby('item_id').size().reset_index(name='count')
     recommended_games = recommended_games.sort_values(by='count', ascending=False)
     
-    # Obtener los nombres de los juegos recomendados
+    # Recomiendo los nombres de los juegos recomendados
     recommended_game_ids = recommended_games['item_id'].head(5)
     recommended_games_names = df_steam_games[df_steam_games['id'].isin(recommended_game_ids)]['title'].tolist()
     
