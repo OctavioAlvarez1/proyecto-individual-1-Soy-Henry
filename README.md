@@ -35,6 +35,8 @@ Para el trabajo de <strong>Data Engineering</strong> se procedió a efectuar una
 
   * Se generaron achivos con formato .parquet para que los datos sean más livianos para ser interpretados en la API.
 
+Todas las transformaciones hechas pueden verificarse en el siguiente <a href="https://github.com/OctavioAlvarez1/proyecto-individual-1-Soy-Henry/blob/main/etl_data.ipynb">archivo</a>
+
 
 
 
