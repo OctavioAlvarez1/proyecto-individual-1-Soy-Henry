@@ -5,5 +5,8 @@ Este proyecto abarca una serie de pasos para desarrollar un proceso de <strong>D
 
 ![Imagen](https://github.com/OctavioAlvarez1/proyecto-individual-1-Soy-Henry/blob/main/Images/Mlops.png)
 
+<h1>Contexto</h1>
+
+
 
 
