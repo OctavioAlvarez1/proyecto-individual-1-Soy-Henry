@@ -88,3 +88,9 @@ Para el sistema de recomendación user-item se definía la siguiente función:
 * def recomendacion_usuario( id de usuario ): Ingresando el id de un usuario, deberíamos recibir una lista con 5 juegos recomendados para dicho usuario.
 
 Para ver el desarrollo completo del modelo podés ingresar en este <a href="https://github.com/OctavioAlvarez1/proyecto-individual-1-Soy-Henry/blob/main/main.py">link</a>
+
+<h1>Deployment</h1>
+
+Para el deploy de la API, se utilizó la plataforma Render. Los datos están listos para ser consumidos y consultados a partir del siguiente link
+
+<a href="https://proyecto-individual-1-soy-henry.onrender.com">Link al deployment</a>
