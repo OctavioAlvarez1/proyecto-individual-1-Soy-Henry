@@ -97,4 +97,6 @@ Para el deploy de la API, se utilizó la plataforma Render. Los datos están lis
 
 <h1>Video</h1>
 
-Para consultar sobre los pasos del proceso y una explicación más profunda es posible acceder al siguiente enlace
+Para consultar sobre los pasos del proceso y una explicación más profunda es posible acceder al siguiente <a href="https://www.youtube.com/watch?v=SQb4PZa0FiM">enlace</a>
+
+
